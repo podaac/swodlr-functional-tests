@@ -35,7 +35,6 @@ jobs:
           pip3 install requests
       - name: Execute tests
         run: |
-          ls -all
           python3 "executeApiTests.py" -u ${{ secrets.EDL_USERNAME }} -p ${{ secrets.EDL_PASSWORD }} -e ${{ github.event.inputs.environment }}
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2

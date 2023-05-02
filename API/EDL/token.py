@@ -1,37 +1,36 @@
 import requests
 
-import config
+import config.globalvariables
 
 
 # File wide variables
 HTTPBasicAuth = requests.models.HTTPBasicAuth
-conf = config.config.Config
+globVar = config.globalvariables.GlobalVariables
 
 class Token():
 
     def GetExistingToken():
         endpoint = "/api/users/tokens"
-        url = conf.EDL_baseurl + endpoint
-
+        url = globVar.EDL_baseurl + endpoint
         response = requests.get(
             url = url,
-            auth = HTTPBasicAuth(conf.EDL_Username, conf.EDL_Password))
+            auth = HTTPBasicAuth(globVar.EDL_Username, globVar.EDL_Password))
         return response
 
     def RequestNewToken():
         endpoint = "/api/users/token"
-        url = conf.EDL_baseurl + endpoint
+        url = globVar.EDL_baseurl + endpoint
 
         response = requests.post(
             url = url,
-            auth = HTTPBasicAuth(conf.EDL_Username, conf.EDL_Password))
+            auth = HTTPBasicAuth(globVar.EDL_Username, globVar.EDL_Password))
         return response
 
     def DeleteExistingToken(token:str):
         endpoint = "/api/users/revoke_token?token={0}".format(token)
-        url = conf.EDL_baseurl + endpoint
+        url = globVar.EDL_baseurl + endpoint
 
         response = requests.post(
             url = url,
-            auth = HTTPBasicAuth(conf.EDL_Username, conf.EDL_Password))
+            auth = HTTPBasicAuth(globVar.EDL_Username, globVar.EDL_Password))
         return response

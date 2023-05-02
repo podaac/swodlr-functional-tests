@@ -1,7 +1,10 @@
 import argparse
+import pytest
 
 from config.configManager import ConfigManager
 from utils.enum import Environment
+from utils.edltokenhandler import EDLTokenHandler
+from utils import SetupCalls
 
 def parse_args():
     """
@@ -45,12 +48,17 @@ def run():
 
     _args = parse_args()
     environment = Environment.from_str(_args.env)
-    username = _args.edl_Username
-    pw = _args.edl_Password
+    username = _args.username
+    pw = _args.password
+
+    SetupCalls.SetUpLogging()
     ConfigManager.InitializeConfig(
         env = environment,
         edl_Username = username,
         edl_Password = pw)
+    EDLTokenHandler.GetEDLAccessToken()
+    
+    pytest.main(["tests"])
     
 
 if __name__ == '__main__':

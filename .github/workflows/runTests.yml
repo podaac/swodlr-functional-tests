@@ -26,4 +26,11 @@ jobs:
       - name: Execute tests
         run: |
           python3 "executeApiTests.py" -u ${{ secrets.EDL_USER }} -p ${{ secrets.EDL_PASS }} -e ${{ secrets.ENV }}
-      - name: Generate local report
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            test-results/**/*.xml
+            test-results/**/*.trx
+            test-results/**/*.json

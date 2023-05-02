@@ -1,4 +1,4 @@
-class Config():
+class GlobalVariables():
 
     # Environment Information
     Environment:str = ""
@@ -10,3 +10,4 @@ class Config():
     EDL_baseurl = ""
     EDL_Username = ""
     EDL_Password = ""
+    EDL_AccessToken = ""

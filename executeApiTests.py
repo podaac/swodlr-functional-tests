@@ -58,7 +58,7 @@ def run():
         edl_Password = pw)
     EDLTokenHandler.GetEDLAccessToken()
     
-    pytest.main(["tests"])
+    pytest.main(["tests", "--junitxml=report.xml"])
     
 
 if __name__ == '__main__':

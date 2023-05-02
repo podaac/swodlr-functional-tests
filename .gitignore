@@ -10,6 +10,9 @@
 **/log_*.*
 **/*.log
 
+# Report file
+**/*.xml
+
 # Sensitive data
 **/*.pfx
 passphrase

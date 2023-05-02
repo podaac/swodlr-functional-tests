@@ -1,0 +1,18 @@
+
+# Visual Studio Core related files
+.vscode
+.DS_Store
+
+# Python compiler cache
+**/__pycache__
+
+# Log files
+**/log_*.*
+**/*.log
+
+# Report file
+**/*.xml
+
+# Sensitive data
+**/*.pfx
+passphrase

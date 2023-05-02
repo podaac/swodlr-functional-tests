@@ -1,0 +1,36 @@
+# This is a test pipeline for the API tests
+name: API Functional Tests
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # First job in the workflow installs and verifies the software
+  build:
+    name: Test Execution
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Set environment variables
+        run: |
+          echo "SLACK_REPORT_CONTENT=" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+          pip3 install --upgrade pip
+          pip3 install -r dependencies_pip
+          pip3 install python-dateutil --upgrade
+      - name: Execute tests
+        run: |
+          python3 "executeApiTests.py" -u ${{ secrets.EDL_USER }} -p ${{ secrets.EDL_PASS }} -e ${{ secrets.ENV }}
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            test-results/**/*.xml
+            test-results/**/*.trx
+            test-results/**/*.json

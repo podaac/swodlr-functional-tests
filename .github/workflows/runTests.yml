@@ -25,7 +25,7 @@ jobs:
           pip3 install python-dateutil --upgrade
       - name: Execute tests
         run: |
-          python3 "executeApiTests.py" -u ${{ secrets.EDL_USER }} -p ${{ secrets.EDL_PASS }} -e ${{ secrets.ENV }}
+          python3 "executeApiTests.py" -u ${{ secrets.EDL_USERNAME }} -p ${{ secrets.EDL_PASSWORD }} -e "sit"
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()

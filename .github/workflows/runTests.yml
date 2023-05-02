@@ -26,14 +26,14 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Set environment variables
+      - name: Debug
         run: |
-          echo "ENVIRONMENT=sit" >> $GITHUB_ENV
+          ls -all
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install -r dependencies_pip
-          pip3 install python-dateutil --upgrade
+          pip3 install pytest
+          pip3 install requests
       - name: Execute tests
         run: |
           python3 "executeApiTests.py" -u ${{ secrets.EDL_USERNAME }} -p ${{ secrets.EDL_PASSWORD }} -e ${{ github.event.inputs.environment }}

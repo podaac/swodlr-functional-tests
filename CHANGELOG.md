@@ -4,9 +4,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 ### Added
-- **Podaac-5480**
+- **Podaac-5560**
     - Created framework
-    - Created test cases
+    - Created github action
+    - Added dummy test cases to see the process works as intended
+    - Added EDL token handling
+    - Added Filehandling
 ### Changed
 ### Deprecated
 ### Removed

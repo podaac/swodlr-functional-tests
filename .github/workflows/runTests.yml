@@ -14,8 +14,6 @@ on:
           - uat
           - sit
         message:
-        
-
 jobs:
   # First job in the workflow installs and verifies the software
   build:

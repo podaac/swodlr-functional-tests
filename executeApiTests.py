@@ -57,7 +57,6 @@ def run():
         edl_Username = username,
         edl_Password = pw)
     EDLTokenHandler.GetEDLAccessToken()
-    
     pytest.main(["tests", "--junitxml=./test-results/report.xml"])
     
 

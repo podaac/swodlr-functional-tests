@@ -4,7 +4,16 @@ name: API Functional Tests
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+    inputs:
+      environment:
+        required: true
+        description: Select the environment to execute on
+        type: choice 
+        options: 
+          - ops
+          - uat
+          - sit
+        message:
 jobs:
   # First job in the workflow installs and verifies the software
   build:
@@ -12,20 +21,19 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it and the directory won't be empty
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Set environment variables
-        run: |
-          echo "SLACK_REPORT_CONTENT=" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install -r dependencies_pip
-          pip3 install python-dateutil --upgrade
+          pip3 install pytest
+          pip3 install requests
       - name: Execute tests
         run: |
-          python3 "executeApiTests.py" -u ${{ secrets.EDL_USER }} -p ${{ secrets.EDL_PASS }} -e ${{ secrets.ENV }}
+          python3 "executeApiTests.py" -u ${{ secrets.EDL_USERNAME }} -p ${{ secrets.EDL_PASSWORD }} -e ${{ github.event.inputs.environment }}
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()

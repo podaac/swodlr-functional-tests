@@ -11,6 +11,7 @@
 **/*.log
 
 # Report file
+test-results/**/*.*
 **/*.xml
 
 # Sensitive data

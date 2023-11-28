@@ -1,4 +1,6 @@
-from API.SWODLR.basecall import BaseCall
+from API.Generic.graphqlbase import GraphQlBase
+from utils import ErrorInjector
+
 import requests
 
 import config.globalvariables
@@ -12,6 +14,8 @@ class Status():
     
     def GetStatusByProductID(
             productId:str,
+            limit:int = 10,
+            valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -19,9 +23,17 @@ class Status():
         if logging:
             print(f'\r\nGetting Status for Product "{productId}"...')
 
+        productIdString = f'"{productId}"'
+        limitString = str(limit)
+        for field in valueTypeError.keys():
+            expectedType = valueTypeError[field]
+            if field.lower() in ['product', 'productid']:
+                productIdString = ErrorInjector.ValueTypeInjector(expectedType, productId)
+            elif field.lower() == 'limit':
+                limitString = ErrorInjector.ValueTypeInjector(expectedType, limitString)
         graphQlBody = '''
             {
-                statusByProduct(product: "''' + productId + '''") {
+                statusByProduct(product: ''' + productIdString + ''', limit: ''' + limitString + ''') {
                     id
                     state
                     timestamp
@@ -30,7 +42,7 @@ class Status():
             }
             '''
         
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,
@@ -42,8 +54,9 @@ class Status():
     
 
     def GetStatusByPrevious(
-            productId:str,
+            statusId:str,
             limit:int = 10,
+            valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -51,9 +64,18 @@ class Status():
         if logging:
             print(f'\r\nGetting Product details for previous...')
 
+        statusIdString = f'"{statusId}"'
+        limitString = str(limit)
+        for field in valueTypeError.keys():
+            expectedType = valueTypeError[field]
+            if field.lower() in ['statusid', 'after']:
+                statusIdString = ErrorInjector.ValueTypeInjector(expectedType, statusId)
+            elif field.lower() == 'limit':
+                limitString = ErrorInjector.ValueTypeInjector(expectedType, limitString)
+        
         graphQlBody = '''
             {
-                statusByPrevious(after: "''' + productId + '''", limit: ''' + limit + ''') {
+                statusByPrevious(after: ''' + statusIdString + ''', limit: ''' + limitString + ''') {
                     id
                     state
                     timestamp
@@ -62,7 +84,7 @@ class Status():
             }
             '''
         
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,

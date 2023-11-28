@@ -1,4 +1,5 @@
-from API.SWODLR.basecall import BaseCall
+from API.Generic.graphqlbase import GraphQlBase
+
 import requests
 
 import config.globalvariables
@@ -29,7 +30,7 @@ class User():
             }
             '''
         
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,
@@ -90,7 +91,7 @@ class User():
             }
             '''
         
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,

@@ -6,7 +6,7 @@ import config.globalvariables
 # File wide variables
 globalVars = config.globalvariables.GlobalVariables
 
-class BaseCall():
+class GraphQlBase():
     
     def Base_Post(
             url:str,
@@ -30,10 +30,9 @@ class BaseCall():
         
         if logging:
             print(f"Response: {response.status_code}")
-            # if response.status_code != 200:
             print(f"Response text:\r\n{response.text}\r\n")
             print(f"Request url:\r\n{response.request.url}\r\n")
-            print(f"Request header:\r\n{response.request.headers}\r\n")
             print(f"Request body:\r\n{response.request.body}\r\n")
 
         return response
+    

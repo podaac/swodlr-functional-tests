@@ -14,3 +14,5 @@ class GlobalVariables():
 
     # Storage
     SWODLR_ProductId = ""
+    SWODLR_StateId = ""
+    SWODLR_RasterDefinitionId = ""

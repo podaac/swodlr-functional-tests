@@ -1,7 +1,7 @@
-from API.SWODLR.basecall import BaseCall
+from API.Generic.graphqlbase import GraphQlBase
+from utils import ErrorInjector
 
 import requests
-import json
 
 import config.globalvariables
 
@@ -36,7 +36,7 @@ class RasterDefinition():
             }
             '''
         
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,
@@ -49,6 +49,10 @@ class RasterDefinition():
 
     def CreateNewRasterDefinition(
             rasterName:str,
+            rasterResolution:int = 100,
+            utmZoneAdjust:int = 0,
+            mgrsBandAdjust:int = 0,
+            valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -56,22 +60,44 @@ class RasterDefinition():
         if logging:
             print(f'\r\nCreating a new Raster Definition related to Current user...')
 
+        rasterNameString = f'"{rasterName}"'
+        outputGranuleExtentFlagString = 'false'
+        outputSamplingGridTypeString = 'UTM'
+        rasterResolutionString = f'{rasterResolution}'
+        utmZoneAdjustString = f'{utmZoneAdjust}'
+        mgrsBandAdjustString = f'{mgrsBandAdjust}'
+        for field in valueTypeError.keys():
+            expectedType = valueTypeError[field]
+            if field.lower() in ['rastername', 'name']:
+                rasterNameString = ErrorInjector.ValueTypeInjector(expectedType, rasterName)
+            elif field.lower() in ['outputgranuleextentflag', 'ogef']:
+                outputGranuleExtentFlagString = ErrorInjector.ValueTypeInjector(expectedType, outputGranuleExtentFlagString)
+            elif field.lower() in ['outputsamplinggridtype', 'osgt']:
+                outputSamplingGridTypeString = ErrorInjector.ValueTypeInjector(expectedType, outputSamplingGridTypeString)
+            elif field.lower() in ['rasterresolution']:
+                rasterResolutionString = ErrorInjector.ValueTypeInjector(expectedType, rasterResolutionString)
+            elif field.lower() in ['utmzoneadjust', 'utmza']:
+                utmZoneAdjustString = ErrorInjector.ValueTypeInjector(expectedType, utmZoneAdjustString)
+            elif field.lower() in ['mgrsbandadjust', 'mba']:
+                mgrsBandAdjustString = ErrorInjector.ValueTypeInjector(expectedType, mgrsBandAdjustString)
+            
+
         graphQlBody = '''
             mutation {
                 createRasterDefinition (
-                	name: "''' + rasterName + '''",
-                	outputGranuleExtentFlag: false,
-                	outputSamplingGridType: UTM,
-                	rasterResolution: 100,
-                	utmZoneAdjust: 0,
-                	mgrsBandAdjust: 0
+                	name: ''' + rasterNameString + ''',
+                	outputGranuleExtentFlag: ''' + outputGranuleExtentFlagString + ''',
+                	outputSamplingGridType: ''' + outputSamplingGridTypeString + ''',
+                	rasterResolution: ''' + rasterResolutionString + ''',
+                	utmZoneAdjust: ''' + utmZoneAdjustString + ''',
+                	mgrsBandAdjust: ''' + mgrsBandAdjustString + '''
                 ) {
                 	id
                 }
             }
             '''
 
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,
@@ -84,6 +110,7 @@ class RasterDefinition():
 
     def DeleteRasterDefinition(
             rasterDefinitionId:str,
+            valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -91,13 +118,19 @@ class RasterDefinition():
         if logging:
             print(f'\r\nDeleting Raster Definitions "{rasterDefinitionId}"...')
 
+        rasterDefinitionIdString = f'"{rasterDefinitionId}"'
+        for field in valueTypeError.keys():
+            expectedType = valueTypeError[field]
+            if field.lower() in ['rasterdefinition', 'rasterdefinitionid', 'id']:
+                rasterDefinitionIdString = ErrorInjector.ValueTypeInjector(expectedType, rasterDefinitionId)
+
         graphQlBody = '''
             mutation {
-            	deleteRasterDefinition (id: "''' + rasterDefinitionId + '''")
+            	deleteRasterDefinition (id: ''' + rasterDefinitionIdString + ''')
             }
             '''
 
-        response = BaseCall.Base_Post(
+        response = GraphQlBase.Base_Post(
             url = f'{globalVars.SWODLR_baseurl}/{endpoint}',
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,

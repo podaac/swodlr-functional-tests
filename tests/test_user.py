@@ -8,6 +8,9 @@ import config.globalvariables
 globalVars = config.globalvariables.GlobalVariables
 
 class TestUser:
+
+# ========================================== currentUser ==========================================
+
     def test_User_GetCurrentUserDetails_Full_200(self):
         expectedStatusCode = 200
         response:Response = User.GetCurrentUserFullDetails(authorizationHeader = True)

@@ -8,24 +8,23 @@ import config.globalvariables
 globalVars = config.globalvariables.GlobalVariables
 endpoint = "api/graphql"
 
-class Status():
+class User():
     
-    def GetStatusByProductID(
-            productId:str,
+    def GetCurrentUser(
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
             ) -> requests.Response:
         if logging:
-            print(f'\r\nGetting Status for Product "{productId}"...')
+            print(f'\r\nGetting Current user...')
 
         graphQlBody = '''
             {
-                statusByProduct(product: "''' + productId + '''") {
+                currentUser {
                     id
-                    state
-                    timestamp
-                    reason
+		            firstName
+		            lastName
+		            email
                 }
             }
             '''
@@ -41,23 +40,52 @@ class Status():
         return response
     
 
-    def GetStatusByPrevious(
-            productId:str,
-            limit:int = 10,
+    def GetCurrentUserFullDetails(
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
             ) -> requests.Response:
         if logging:
-            print(f'\r\nGetting Product details for previous...')
+            print(f'\r\nGetting Current user full details...')
 
         graphQlBody = '''
             {
-                statusByPrevious(after: "''' + productId + '''", limit: ''' + limit + ''') {
+                currentUser {
                     id
-                    state
-                    timestamp
-                    reason
+		            firstName
+		            lastName
+		            email
+                    rasterDefinitions {
+		            	name
+		            	id
+		            	outputSamplingGridType
+		            	rasterResolution
+		            	outputGranuleExtentFlag
+		            	mgrsBandAdjust
+		            	utmZoneAdjust
+		            }
+                    products {
+		            	id
+		            	cycle
+		            	pass
+		            	scene
+		            	outputSamplingGridType
+		            	rasterResolution
+		            	outputGranuleExtentFlag
+		            	mgrsBandAdjust
+		            	utmZoneAdjust
+		            	granules {
+		            		id
+		            		timestamp
+		            		uri
+		            	}
+		            	status {
+		            		id
+		            		state
+		            		reason
+		            		timestamp
+		            	}
+		            }
                 }
             }
             '''
@@ -67,8 +95,6 @@ class Status():
             graphQlBody = graphQlBody,
             authorizationHeader = authorizationHeader,
             authorizationHeader_invalid = authorizationHeader_invalid,
-            logging = logging
-        )
+            logging = logging)
         
         return response
-    

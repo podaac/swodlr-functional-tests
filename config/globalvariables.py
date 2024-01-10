@@ -11,3 +11,8 @@ class GlobalVariables():
     EDL_Username = ""
     EDL_Password = ""
     EDL_AccessToken = ""
+
+    # Storage
+    SWODLR_ProductId = ""
+    SWODLR_StateId = ""
+    SWODLR_RasterDefinitionId = ""

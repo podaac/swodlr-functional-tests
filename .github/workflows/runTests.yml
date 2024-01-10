@@ -13,7 +13,6 @@ on:
           - ops
           - uat
           - sit
-        message:
 jobs:
   # First job in the workflow installs and verifies the software
   build:
@@ -29,8 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install pytest
-          pip3 install requests
+          pip3 install -r ./dependencies_pip
       - name: Execute tests
         run: |
           python3 "executeApiTests.py" -u ${{ secrets.EDL_USERNAME }} -p ${{ secrets.EDL_PASSWORD }} -e ${{ github.event.inputs.environment }}

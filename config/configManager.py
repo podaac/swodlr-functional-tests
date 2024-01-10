@@ -5,7 +5,7 @@ import config.globalvariables
 
 
 # File wide variables
-globVar = config.globalvariables.GlobalVariables
+globalVars = config.globalvariables.GlobalVariables
 
 class ConfigManager():
 
@@ -20,13 +20,13 @@ class ConfigManager():
         envVariableJson = FileHandler.GetJsonFileContent("env.json", "./config")
 
         # Global
-        globVar.Environment = env
+        globalVars.Environment = env
 
         #SWODLR
-        globVar.SWODLR_baseurl = envVariableJson[env.name]['SWODLR_API_BASEURL']
+        globalVars.SWODLR_baseurl = envVariableJson[env.name]['SWODLR_API_BASEURL']
 
         # Earthdata Login
-        globVar.EDL_baseurl = envVariableJson[env.name]['EARTHDATALOGIN_API_BASEURL']
-        globVar.EDL_Username = edl_Username
-        globVar.EDL_Password = edl_Password
+        globalVars.EDL_baseurl = envVariableJson[env.name]['EARTHDATALOGIN_API_BASEURL']
+        globalVars.EDL_Username = edl_Username
+        globalVars.EDL_Password = edl_Password
 

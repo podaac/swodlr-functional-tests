@@ -7,7 +7,7 @@ from API.EDL import Token
 import config.globalvariables
 
 
-globVar = config.globalvariables.GlobalVariables
+globalVars = config.globalvariables.GlobalVariables
 
 class EDLTokenHandler():
 
@@ -39,7 +39,7 @@ class EDLTokenHandler():
                 data = json.loads(response.text)[0]
             access_token = data["access_token"]
             print("Saving access token!")
-            globVar.EDL_AccessToken = access_token
+            globalVars.EDL_AccessToken = access_token
         print("Get Access EDL Token - Finished")
 
 

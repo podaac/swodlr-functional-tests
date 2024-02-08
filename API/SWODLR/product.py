@@ -13,6 +13,8 @@ endpoint = "api/graphql"
 class Product():
     
     def GetProductsOfCurrentUser(
+            pageSize:int = 10,
+            pageAfterId:str = "",
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -23,7 +25,10 @@ class Product():
         graphQlBody = '''
             {
             	currentUser {
-            		products {
+            		products(limit: ''' + str(pageSize)
+        if pageAfterId != "":
+            graphQlBody += f', after: "{pageAfterId}"'
+        graphQlBody += ''') {
             			id
             			cycle
             			pass

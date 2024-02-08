@@ -14,7 +14,8 @@ class Status():
     
     def GetStatusByProductID(
             productId:str,
-            limit:int = 10,
+            pageSize:int = 10,
+            pageAfterId:str = "",
             valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
@@ -24,7 +25,7 @@ class Status():
             print(f'\r\nGetting Status for Product "{productId}"...')
 
         productIdString = f'"{productId}"'
-        limitString = str(limit)
+        limitString = str(pageSize)
         for field in valueTypeError.keys():
             expectedType = valueTypeError[field]
             if field.lower() in ['product', 'productid']:
@@ -33,7 +34,10 @@ class Status():
                 limitString = ErrorInjector.ValueTypeInjector(expectedType, limitString)
         graphQlBody = '''
             {
-                statusByProduct(product: ''' + productIdString + ''', limit: ''' + limitString + ''') {
+                statusByProduct(product: ''' + productIdString + ''', limit: ''' + limitString
+        if pageAfterId != "":
+            graphQlBody += f', after: "{pageAfterId}"'
+        graphQlBody += ''') {
                     id
                     state
                     timestamp
@@ -54,8 +58,8 @@ class Status():
     
 
     def GetStatusByPrevious(
-            statusId:str,
-            limit:int = 10,
+            pageAfterId:str,
+            pageSize:int = 10,
             valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
@@ -64,13 +68,13 @@ class Status():
         if logging:
             print(f'\r\nGetting Product details for previous...')
 
-        statusIdString = f'"{statusId}"'
-        limitString = str(limit)
+        statusIdString = f'"{pageAfterId}"'
+        limitString = str(pageSize)
         for field in valueTypeError.keys():
             expectedType = valueTypeError[field]
-            if field.lower() in ['statusid', 'after']:
-                statusIdString = ErrorInjector.ValueTypeInjector(expectedType, statusId)
-            elif field.lower() == 'limit':
+            if field.lower() in ['statusid', 'after', 'pageafterid']:
+                statusIdString = ErrorInjector.ValueTypeInjector(expectedType, pageAfterId)
+            elif field.lower() in ['limit', 'pagesize']:
                 limitString = ErrorInjector.ValueTypeInjector(expectedType, limitString)
         
         graphQlBody = '''

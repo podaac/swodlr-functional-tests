@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument('-e', '--env',
                         help='Environment used to check API of.',
                         required=True,
-                        choices=["uat", "ops", "sit", "ngap_uat", "ngap_ops", "ngap_sit"],
+                        choices=["uat", "UAT", "ops", "OPS", "sit", "SIT", "ngap_uat", "ngap_ops", "ngap_sit"],
                         metavar='ops, uat, sit')
 
     parser.add_argument('-u', '--username',

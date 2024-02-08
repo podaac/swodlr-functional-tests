@@ -1,14 +1,14 @@
 from requests import Response
 from json import loads
 
-from API.SWODLR import Status
+from API.SWODLR import Status, Product
 from utils import Verifications
 
 import config.globalvariables
 
 
 globalVars = config.globalvariables.GlobalVariables
-acceptedStates = ['new', 'available', 'ready']
+acceptedStates = ['new', 'available', 'ready', 'generating', 'unavailable', 'error']
 
 class TestStatus:
 
@@ -101,13 +101,49 @@ class TestStatus:
             checkForData = False
         )
     
+    
+    def test_Status_GetStatusByProductId_Pagination(self):
+        expectedStatusCode = 200
+        pageSize = 3
+        # Find the product ID where more status present then pageSize
+        responseProduct:Response = Product.GetProductsOfCurrentUser(authorizationHeader = True, pageSize = 50)
+        jsonContentProduct = loads(responseProduct.text)
+        products = jsonContentProduct['data']['currentUser']['products']
+        productId = ""
+        for product in products:
+            if len(product['status']) > pageSize:
+                productId = product['id']
+                globalVars.SWODLR_StateId = product['status'][0]['id']
+                break
+        assert productId != "", f'Could not find a product with more statuses then "{pageSize}"'
+        response:Response = Status.GetStatusByProductID(productId = productId, pageSize = pageSize)
+        assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+        count = -1
+        page = 0
+        while count != 0:
+            jsonContent = loads(response.text)
+            print(f'jsonContent: {jsonContent}')
+            statuses = jsonContent['data']['statusByProduct']
+            count = len(statuses)
+            print(f'Statuses: {statuses}')
+            print(f'Count: {count}')
+            if len(statuses) == pageSize:
+                lastId = statuses[count-1]['id']
+                print(f'LastId: {lastId}')
+                response:Response = Status.GetStatusByProductID(productId = productId, pageSize = pageSize, pageAfterId = lastId)
+                assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+                page += 1
+            else:
+                count = 0
+        assert page > 0, f'No pagination happened!' 
+
 
 # ========================================== statusByPrevious ==========================================
 
     def test_Status_GetStatusByPrevious_200(self):
         expectedStatusCode = 200
         stateId = globalVars.SWODLR_StateId
-        response:Response = Status.GetStatusByPrevious(statusId = stateId)
+        response:Response = Status.GetStatusByPrevious(pageAfterId = stateId)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
         jsonContent = loads(response.text)
         statuses = jsonContent['data']['statusByPrevious']
@@ -121,18 +157,18 @@ class TestStatus:
 
     def test_Status_GetStatusByPrevious_NoAuth_401(self):
         expectedStatusCode = 401
-        response:Response = Status.GetStatusByPrevious(statusId = globalVars.SWODLR_StateId, authorizationHeader = False)
+        response:Response = Status.GetStatusByPrevious(pageAfterId = globalVars.SWODLR_StateId, authorizationHeader = False)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
 
 
     def test_Status_GetStatusByPrevious_InvalidAuth_401(self):
         expectedStatusCode = 401
-        response:Response = Status.GetStatusByPrevious(statusId = globalVars.SWODLR_StateId, authorizationHeader_invalid = True)
+        response:Response = Status.GetStatusByPrevious(pageAfterId = globalVars.SWODLR_StateId, authorizationHeader_invalid = True)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
 
 
     def test_Status_GetStatusByPrevious_Value_Empty_StatusID(self):
-        response:Response = Status.GetStatusByPrevious(statusId = "")
+        response:Response = Status.GetStatusByPrevious(pageAfterId = "")
         expectedStatusCode = 200
         expectedError = 'internal_error'
         expectedType = "INTERNAL_ERROR"
@@ -147,7 +183,7 @@ class TestStatus:
     
 
     def test_Status_GetStatusByPrevious_Value_Wrong_StatusID(self):
-        response:Response = Status.GetStatusByPrevious(statusId = globalVars.SWODLR_ProductId)
+        response:Response = Status.GetStatusByPrevious(pageAfterId = globalVars.SWODLR_ProductId)
         expectedStatusCode = 200
         expectedError = "invalid `after` parameter"
         expectedType = "DataFetchingException"
@@ -162,7 +198,7 @@ class TestStatus:
 
 
     def test_Status_GetStatusByPrevious_Type_Wrong_StatusID(self):
-        response:Response = Status.GetStatusByPrevious(statusId = globalVars.SWODLR_StateId, valueTypeError = {'statusId':'integer'})
+        response:Response = Status.GetStatusByPrevious(pageAfterId = globalVars.SWODLR_StateId, valueTypeError = {'statusId':'integer'})
         expectedStatusCode = 200
         expectedError = "invalid syntax : "
         expectedType = "InvalidSyntax"
@@ -177,7 +213,7 @@ class TestStatus:
 
 
     def test_Status_GetStatusByPrevious_Type_Wrong_Limit(self):
-        response:Response = Status.GetStatusByPrevious(statusId = globalVars.SWODLR_StateId, valueTypeError = {'limit':'string'})
+        response:Response = Status.GetStatusByPrevious(pageAfterId = globalVars.SWODLR_StateId, valueTypeError = {'limit':'string'})
         expectedStatusCode = 200
         expectedError = "validation error of type wrongtype: argument 'limit' with value 'stringvalue"
         expectedType = "ValidationError"
@@ -189,3 +225,28 @@ class TestStatus:
             expectedType = expectedType,
             checkForData = False
         )
+        
+    def test_Status_GetStatusByPrevious_Pagination(self):
+        expectedStatusCode = 200
+        stateId = globalVars.SWODLR_StateId
+        pageSize = 3
+        response:Response = Status.GetStatusByPrevious(pageAfterId = stateId, pageSize = pageSize)
+        assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+        count = -1
+        page = 0
+        while count != 0:
+            jsonContent = loads(response.text)
+            print(f'Response Body:\r\n{response.text}')
+            statuses = jsonContent['data']['statusByPrevious']
+            count = len(statuses)
+            print(f'Statuses: {statuses}')
+            print(f'Count: {count}')
+            if len(statuses) == pageSize:
+                lastId = statuses[count-1]['id']
+                print(f'LastId: {lastId}')
+                response:Response = Status.GetStatusByPrevious(pageAfterId = lastId, pageSize = pageSize)
+                assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+                page += 1
+            else:
+                count = 0
+        assert page > 0, f'No pagination happened!' 

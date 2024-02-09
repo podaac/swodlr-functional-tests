@@ -15,7 +15,6 @@ class Status():
     def GetStatusByProductID(
             productId:str,
             pageSize:int = 10,
-            pageAfterId:str = "",
             valueTypeError:dict = {},
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
@@ -35,8 +34,6 @@ class Status():
         graphQlBody = '''
             {
                 statusByProduct(product: ''' + productIdString + ''', limit: ''' + limitString
-        if pageAfterId != "":
-            graphQlBody += f', after: "{pageAfterId}"'
         graphQlBody += ''') {
                     id
                     state

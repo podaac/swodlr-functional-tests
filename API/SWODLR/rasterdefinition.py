@@ -13,6 +13,12 @@ endpoint = "api/graphql"
 class RasterDefinition():
     
     def GetResterDefintionsOfCurrentUser(
+            id: str = "",
+            outputGranuleExtentFlag:bool = None,
+            outputSamplingGridType:str = "",
+            rasterResolution:int = 0,
+            utmZoneAdjust:int = 0,
+            mgrsBandAdjust:int = 0,
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
@@ -20,10 +26,35 @@ class RasterDefinition():
         if logging:
             print(f'\r\nGetting Raster Definitions related to Current user...')
 
+        filteringPresent = False
+        if (id != "" or 
+            outputGranuleExtentFlag != None or 
+            outputSamplingGridType != "" or 
+            rasterResolution != 0 or
+            utmZoneAdjust != 0 or
+            mgrsBandAdjust != 0):
+            filteringPresent = True
         graphQlBody = '''
             {
             	currentUser {
-            		rasterDefinitions {
+            		rasterDefinitions'''
+        if filteringPresent:
+            graphQlBody += '('
+        if id != "":
+            graphQlBody += f'id: "{id}"'
+        if outputGranuleExtentFlag != None:
+            graphQlBody += f'outputGranuleExtentFlag: {outputGranuleExtentFlag}'
+        if outputSamplingGridType != "":
+            graphQlBody += f'outputSamplingGridType: "{outputSamplingGridType}"'
+        if rasterResolution != 0:
+            graphQlBody += f'rasterResolution: {rasterResolution}'
+        if utmZoneAdjust != 0:
+            graphQlBody += f'utmZoneAdjust: {utmZoneAdjust}'
+        if mgrsBandAdjust != 0:
+            graphQlBody += f'mgrsBandAdjust: {mgrsBandAdjust}'
+        if filteringPresent:
+            graphQlBody += ')'
+        graphQlBody += ''' {
             			name
             			id
             			outputSamplingGridType

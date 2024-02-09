@@ -33,6 +33,7 @@ class GraphQlBase():
             print(f"Response text:\r\n{response.text}\r\n")
             print(f"Request url:\r\n{response.request.url}\r\n")
             print(f"Request body:\r\n{response.request.body}\r\n")
+            # print(f"Token: {globalVars.EDL_AccessToken}")
 
         return response
     

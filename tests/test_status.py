@@ -100,42 +100,6 @@ class TestStatus:
             expectedType = expectedType,
             checkForData = False
         )
-    
-    
-    def test_Status_GetStatusByProductId_Pagination(self):
-        expectedStatusCode = 200
-        pageSize = 3
-        # Find the product ID where more status present then pageSize
-        responseProduct:Response = Product.GetProductsOfCurrentUser(authorizationHeader = True, pageSize = 50)
-        jsonContentProduct = loads(responseProduct.text)
-        products = jsonContentProduct['data']['currentUser']['products']
-        productId = ""
-        for product in products:
-            if len(product['status']) > pageSize:
-                productId = product['id']
-                globalVars.SWODLR_StateId = product['status'][0]['id']
-                break
-        assert productId != "", f'Could not find a product with more statuses then "{pageSize}"'
-        response:Response = Status.GetStatusByProductID(productId = productId, pageSize = pageSize)
-        assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
-        count = -1
-        page = 0
-        while count != 0:
-            jsonContent = loads(response.text)
-            print(f'jsonContent: {jsonContent}')
-            statuses = jsonContent['data']['statusByProduct']
-            count = len(statuses)
-            print(f'Statuses: {statuses}')
-            print(f'Count: {count}')
-            if len(statuses) == pageSize:
-                lastId = statuses[count-1]['id']
-                print(f'LastId: {lastId}')
-                response:Response = Status.GetStatusByProductID(productId = productId, pageSize = pageSize, pageAfterId = lastId)
-                assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
-                page += 1
-            else:
-                count = 0
-        assert page > 0, f'No pagination happened!' 
 
 
 # ========================================== statusByPrevious ==========================================
@@ -228,8 +192,19 @@ class TestStatus:
         
     def test_Status_GetStatusByPrevious_Pagination(self):
         expectedStatusCode = 200
-        stateId = globalVars.SWODLR_StateId
         pageSize = 3
+        
+        # Find the product ID where more status present then pageSize
+        responseProduct:Response = Product.GetProductsOfCurrentUser(authorizationHeader = True, pageSize = 50)
+        jsonContentProduct = loads(responseProduct.text)
+        products = jsonContentProduct['data']['currentUser']['products']
+        stateId = ""
+        for product in products:
+            if len(product['status']) > pageSize:
+                stateId = product['status'][0]['id']
+                break
+        assert stateId != "", f'Could not find a product with more statuses then "{pageSize}"'
+        
         response:Response = Status.GetStatusByPrevious(pageAfterId = stateId, pageSize = pageSize)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
         count = -1

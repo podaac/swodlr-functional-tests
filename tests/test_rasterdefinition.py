@@ -1,6 +1,6 @@
 from requests import Response
 from json import loads
-from random import choice
+from random import choice, randint
 from string import ascii_lowercase, ascii_uppercase, digits
 
 from API.SWODLR import RasterDefinition
@@ -10,6 +10,7 @@ import config.globalvariables
 
 
 globalVars = config.globalvariables.GlobalVariables
+UTMResolutions = [90, 100, 120, 125, 200, 250, 500, 1000, 2500, 5000, 10000]
 
 class TestRasterdefinition:
 
@@ -31,7 +32,40 @@ class TestRasterdefinition:
         expectedStatusCode = 401
         response:Response = RasterDefinition.GetResterDefintionsOfCurrentUser(authorizationHeader_invalid = True)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
-
+            
+    
+    def test_Rasterdefinition_GetRasterDefinitionsForCurrentUser_Filter_Resolution_500(self):
+        rasterDefinitionIds = CreateRasterDefinitions(10)
+        expectedStatusCode = 200
+        responseNoFilter:Response = RasterDefinition.GetResterDefintionsOfCurrentUser()
+        assert responseNoFilter.status_code == expectedStatusCode, f'Response code "{responseNoFilter.status_code}" is not "{expectedStatusCode}"!'
+        jsonContent = loads(responseNoFilter.text)
+        countNoFilter = len(jsonContent['data']['currentUser']['rasterDefinitions'])
+        
+        rasterResolutionFilter = 500
+        responseWithFilter:Response = RasterDefinition.GetResterDefintionsOfCurrentUser(rasterResolution = rasterResolutionFilter)
+        assert responseWithFilter.status_code == expectedStatusCode, f'Response code "{responseWithFilter.status_code}" is not "{expectedStatusCode}"!'
+        VerifyFiltering(
+            responseText = responseWithFilter,
+            fieldName = "rasterResolution",
+            filterValue = rasterResolutionFilter,
+            originalCount = countNoFilter)
+        DeleteRasterDefinitions(rasterDefinitionIds)
+    
+    
+    def test_Rasterdefinition_GetRasterDefinitionsForCurrentUser_Filter_Id(self):
+        rasterDefinitionIds = CreateRasterDefinitions(10)
+        expectedStatusCode = 200
+        idFilter = rasterDefinitionIds[randint(0,9)]
+        responseWithFilter:Response = RasterDefinition.GetResterDefintionsOfCurrentUser(id = idFilter)
+        assert responseWithFilter.status_code == expectedStatusCode, f'Response code "{responseWithFilter.status_code}" is not "{expectedStatusCode}"!'
+        VerifyFiltering(
+            responseText = responseWithFilter,
+            fieldName = "id",
+            filterValue = idFilter,
+            originalCount = 10,
+            expectedCount = 1)
+        DeleteRasterDefinitions(rasterDefinitionIds)
 
 # ========================================== createRasterDefinition ==========================================
 
@@ -379,3 +413,47 @@ class TestRasterdefinition:
             expectedType = expectedType,
             checkForData = False
         )
+
+
+# ========================================== Private Methods ==========================================
+def VerifyFiltering(responseText, fieldName:str, filterValue, originalCount:int, expectedCount:int=-1):
+    jsonContent = loads(responseText.text)
+    rasterDefinitions = jsonContent['data']['currentUser']['rasterDefinitions']
+    countWithFilter = len(rasterDefinitions)
+    count = 0
+    for rasterDefinition in rasterDefinitions:
+        print(f'Raster definition: {rasterDefinition}\r\n')
+        filteredFieldValue = rasterDefinition[fieldName]
+        id = rasterDefinition['id']
+        count += 1
+        assert filterValue <= filteredFieldValue, f'The raster resolution for "{id}" is "{filteredFieldValue}" which is not equal or greater then "{filterValue}"!'
+    if expectedCount != -1:
+        assert expectedCount == count, f'Filter returned "{count}" entries, but "{expectedCount}" was expected!'
+    else:
+        assert countWithFilter < originalCount, f'The filtering did not work, the rasterdefinition count did not decrease from "{originalCount}"!'
+        
+
+def CreateRasterDefinitions(count:int) -> list:
+    rasterDefinitionIdList = []
+    for i in range(0, count, 1):
+        rasterResolution = UTMResolutions[i]
+        rasterName = f"testData_RasterDefinition_WithResolution_{rasterResolution}"
+        
+        expectedStatusCode = 200
+        responseCreate:Response = RasterDefinition.CreateNewRasterDefinition(
+            rasterName = rasterName,
+            rasterResolution = rasterResolution
+            )
+        assert responseCreate.status_code == expectedStatusCode, f'Response code "{responseCreate.status_code}" is not "{expectedStatusCode}"!'
+        jsonContent_Create = loads(responseCreate.text)
+        rasterDefinitionIdList.append(jsonContent_Create['data']['createRasterDefinition']['id'])
+    return rasterDefinitionIdList
+        
+        
+def DeleteRasterDefinitions(rasterDefinitionIdList:list):
+    for rasterDefinitionId in rasterDefinitionIdList:
+        responseDelete:Response = RasterDefinition.DeleteRasterDefinition(rasterDefinitionId = rasterDefinitionId)
+        assert responseDelete.status_code == 200, f'Response code "{responseDelete.status_code}" is not "200"!' 
+        jsonContent_Delete = loads(responseDelete.text)
+        deleteConfirmation = jsonContent_Delete['data']['deleteRasterDefinition']
+        assert str(deleteConfirmation).lower() == "true", f'Raster Definition: "{rasterDefinitionId}" is not deleted!'

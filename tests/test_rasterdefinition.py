@@ -35,7 +35,7 @@ class TestRasterdefinition:
             
     
     def test_Rasterdefinition_GetRasterDefinitionsForCurrentUser_Filter_Resolution_500(self):
-        rasterDefinitionIds = CreateRasterDefinitions(10)
+        rasterDefinitionIds = _CreateRasterDefinitions(10)
         expectedStatusCode = 200
         responseNoFilter:Response = RasterDefinition.GetRasterDefintionsOfCurrentUser()
         assert responseNoFilter.status_code == expectedStatusCode, f'Response code "{responseNoFilter.status_code}" is not "{expectedStatusCode}"!'
@@ -45,27 +45,27 @@ class TestRasterdefinition:
         rasterResolutionFilter = 500
         responseWithFilter:Response = RasterDefinition.GetRasterDefintionsOfCurrentUser(rasterResolution = rasterResolutionFilter)
         assert responseWithFilter.status_code == expectedStatusCode, f'Response code "{responseWithFilter.status_code}" is not "{expectedStatusCode}"!'
-        VerifyFiltering(
+        _VerifyFiltering(
             responseText = responseWithFilter,
             fieldName = "rasterResolution",
             filterValue = rasterResolutionFilter,
             originalCount = countNoFilter)
-        DeleteRasterDefinitions(rasterDefinitionIds)
+        _DeleteRasterDefinitions(rasterDefinitionIds)
     
     
     def test_Rasterdefinition_GetRasterDefinitionsForCurrentUser_Filter_Id(self):
-        rasterDefinitionIds = CreateRasterDefinitions(10)
+        rasterDefinitionIds = _CreateRasterDefinitions(10)
         expectedStatusCode = 200
         idFilter = rasterDefinitionIds[randint(0,9)]
         responseWithFilter:Response = RasterDefinition.GetRasterDefintionsOfCurrentUser(id = idFilter)
         assert responseWithFilter.status_code == expectedStatusCode, f'Response code "{responseWithFilter.status_code}" is not "{expectedStatusCode}"!'
-        VerifyFiltering(
+        _VerifyFiltering(
             responseText = responseWithFilter,
             fieldName = "id",
             filterValue = idFilter,
             originalCount = 10,
             expectedCount = 1)
-        DeleteRasterDefinitions(rasterDefinitionIds)
+        _DeleteRasterDefinitions(rasterDefinitionIds)
 
 # ========================================== createRasterDefinition ==========================================
 
@@ -416,7 +416,7 @@ class TestRasterdefinition:
 
 
 # ========================================== Private Methods ==========================================
-def VerifyFiltering(responseText, fieldName:str, filterValue, originalCount:int, expectedCount:int=-1):
+def _VerifyFiltering(responseText, fieldName:str, filterValue, originalCount:int, expectedCount:int=-1):
     jsonContent = loads(responseText.text)
     rasterDefinitions = jsonContent['data']['currentUser']['rasterDefinitions']
     countWithFilter = len(rasterDefinitions)
@@ -433,7 +433,7 @@ def VerifyFiltering(responseText, fieldName:str, filterValue, originalCount:int,
         assert countWithFilter < originalCount, f'The filtering did not work, the rasterdefinition count did not decrease from "{originalCount}"!'
         
 
-def CreateRasterDefinitions(count:int) -> list:
+def _CreateRasterDefinitions(count:int) -> list:
     rasterDefinitionIdList = []
     for i in range(0, count, 1):
         rasterResolution = UTMResolutions[i]
@@ -450,7 +450,7 @@ def CreateRasterDefinitions(count:int) -> list:
     return rasterDefinitionIdList
         
         
-def DeleteRasterDefinitions(rasterDefinitionIdList:list):
+def _DeleteRasterDefinitions(rasterDefinitionIdList:list):
     for rasterDefinitionId in rasterDefinitionIdList:
         responseDelete:Response = RasterDefinition.DeleteRasterDefinition(rasterDefinitionId = rasterDefinitionId)
         assert responseDelete.status_code == 200, f'Response code "{responseDelete.status_code}" is not "200"!' 

@@ -12,7 +12,7 @@ endpoint = "api/graphql"
 
 class RasterDefinition():
     
-    def GetResterDefintionsOfCurrentUser(
+    def GetRasterDefintionsOfCurrentUser(
             id: str = "",
             outputGranuleExtentFlag:bool = None,
             outputSamplingGridType:str = "",

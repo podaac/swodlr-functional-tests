@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added Filehandling
 - **Pagination adn Filtering**
     - Added pagination for method GetProductsOfCurrentUser, GetStatusByPrevious
-    - Added filtering for GetResterDefintionsOfCurrentUser
+    - Added filtering for GetRasterDefintionsOfCurrentUser
     - Created Product and Status API test cases for pagination check
     - Created RasterDefinition API test for filtering check
 ### Changed

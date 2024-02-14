@@ -14,47 +14,29 @@ class RasterDefinition():
     
     def GetRasterDefintionsOfCurrentUser(
             id: str = "",
-            outputGranuleExtentFlag:bool = None,
-            outputSamplingGridType:str = "",
-            rasterResolution:int = 0,
-            utmZoneAdjust:int = 0,
-            mgrsBandAdjust:int = 0,
+            outputGranuleExtentFlag:bool = "null",
+            outputSamplingGridType:str = "null",
+            rasterResolution:int = "null",
+            utmZoneAdjust:int = "null",
+            mgrsBandAdjust:int = "null",
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
             ) -> requests.Response:
         if logging:
             print(f'\r\nGetting Raster Definitions related to Current user...')
-
-        filteringPresent = False
-        if (id != "" or 
-            outputGranuleExtentFlag != None or 
-            outputSamplingGridType != "" or 
-            rasterResolution != 0 or
-            utmZoneAdjust != 0 or
-            mgrsBandAdjust != 0):
-            filteringPresent = True
+        outputGranuleExtentFlagString = str(outputGranuleExtentFlag).lower()
         graphQlBody = '''
             {
             	currentUser {
-            		rasterDefinitions'''
-        if filteringPresent:
-            graphQlBody += '('
-        if id != "":
-            graphQlBody += f'id: "{id}"'
-        if outputGranuleExtentFlag != None:
-            graphQlBody += f'outputGranuleExtentFlag: {outputGranuleExtentFlag}'
-        if outputSamplingGridType != "":
-            graphQlBody += f'outputSamplingGridType: "{outputSamplingGridType}"'
-        if rasterResolution != 0:
-            graphQlBody += f'rasterResolution: {rasterResolution}'
-        if utmZoneAdjust != 0:
-            graphQlBody += f'utmZoneAdjust: {utmZoneAdjust}'
-        if mgrsBandAdjust != 0:
-            graphQlBody += f'mgrsBandAdjust: {mgrsBandAdjust}'
-        if filteringPresent:
-            graphQlBody += ')'
-        graphQlBody += ''' {
+            		rasterDefinitions(
+                        id:''' + f'"{id}", \
+                        outputGranuleExtentFlag: {outputGranuleExtentFlagString}, \
+                        outputSamplingGridType: {outputSamplingGridType}, \
+                        rasterResolution: {rasterResolution}, \
+                        utmZoneAdjust: {utmZoneAdjust}, \
+                        mgrsBandAdjust: {mgrsBandAdjust}' + ''')
+                    {
             			name
             			id
             			outputSamplingGridType

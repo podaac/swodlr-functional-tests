@@ -25,10 +25,7 @@ class Product():
         graphQlBody = '''
             {
             	currentUser {
-            		products(limit: ''' + str(pageSize)
-        if pageAfterId != "":
-            graphQlBody += f', after: "{pageAfterId}"'
-        graphQlBody += ''') {
+            		products(limit: ''' + f'{pageSize}, after: "{pageAfterId}"' + ''') {
             			id
             			cycle
             			pass

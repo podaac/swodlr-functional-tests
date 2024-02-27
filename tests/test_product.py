@@ -424,7 +424,7 @@ class TestProduct:
 
     def test_Product_GetProductsOfCurrentUser_200(self):
         expectedStatusCode = 200
-        response:Response = Product.GetProductsOfCurrentUser()
+        response:Response = Product.GetProductsOfCurrentUser(authorizationHeader = True)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
         productId = globalVars.SWODLR_ProductId
         jsonContent = loads(response.text)
@@ -446,3 +446,28 @@ class TestProduct:
         expectedStatusCode = 401
         response:Response = Product.GetProductsOfCurrentUser(authorizationHeader_invalid = True)
         assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+
+
+    def test_Product_GetProductsOfCurrentUser_Pagination(self):
+        expectedStatusCode = 200
+        pageSize = 3
+        response:Response = Product.GetProductsOfCurrentUser(pageSize = pageSize)
+        assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+        count = -1
+        page = 0
+        while count != 0:
+            jsonContent = loads(response.text)
+            products = jsonContent['data']['currentUser']['products']
+            count = len(products)
+            print(products)
+            print(f'Count: {count}')
+            if len(products) == pageSize:                
+                lastId = products[count-1]['id']
+                print(f'LastId: {lastId}')
+                response:Response = Product.GetProductsOfCurrentUser(pageSize = pageSize, pageAfterId = lastId)
+                assert response.status_code == expectedStatusCode, f'Response code "{response.status_code}" is not "{expectedStatusCode}"!'
+                page += 1
+            else:
+                count = 0
+        assert page > 0, f'No pagination happened!' 
+            

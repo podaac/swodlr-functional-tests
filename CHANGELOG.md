@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added dummy test cases to see the process works as intended
     - Added EDL token handling
     - Added Filehandling
+- **Pagination adn Filtering**
+    - Added pagination for method GetProductsOfCurrentUser, GetStatusByPrevious
+    - Added filtering for GetRasterDefintionsOfCurrentUser
+    - Created Product and Status API test cases for pagination check
+    - Created RasterDefinition API test for filtering check
 ### Changed
 ### Deprecated
 ### Removed

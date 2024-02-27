@@ -12,18 +12,31 @@ endpoint = "api/graphql"
 
 class RasterDefinition():
     
-    def GetResterDefintionsOfCurrentUser(
+    def GetRasterDefintionsOfCurrentUser(
+            id: str = "",
+            outputGranuleExtentFlag:bool = "null",
+            outputSamplingGridType:str = "null",
+            rasterResolution:int = "null",
+            utmZoneAdjust:int = "null",
+            mgrsBandAdjust:int = "null",
             authorizationHeader:bool = True,
             authorizationHeader_invalid:bool = False,
             logging:bool = True
             ) -> requests.Response:
         if logging:
             print(f'\r\nGetting Raster Definitions related to Current user...')
-
+        outputGranuleExtentFlagString = str(outputGranuleExtentFlag).lower()
         graphQlBody = '''
             {
             	currentUser {
-            		rasterDefinitions {
+            		rasterDefinitions(
+                        id:''' + f'"{id}", \
+                        outputGranuleExtentFlag: {outputGranuleExtentFlagString}, \
+                        outputSamplingGridType: {outputSamplingGridType}, \
+                        rasterResolution: {rasterResolution}, \
+                        utmZoneAdjust: {utmZoneAdjust}, \
+                        mgrsBandAdjust: {mgrsBandAdjust}' + ''')
+                    {
             			name
             			id
             			outputSamplingGridType
